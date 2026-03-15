@@ -58,8 +58,9 @@ separateBtn.addEventListener('click', async () => {
   uploadProgressSection.style.display  = 'flex';
   processProgressSection.style.display = 'none';
 
+  // ✅ FIX: el campo debe llamarse 'file', no 'audio'
   const formData = new FormData();
-  formData.append('audio', selectedFile);
+  formData.append('file', selectedFile, selectedFile.name);
 
   try {
     const xhr = new XMLHttpRequest();
@@ -91,8 +92,9 @@ separateBtn.addEventListener('click', async () => {
     setProgress(processProgressFill, processPercent, 100);
     processStatusText.textContent = '✓ Done!';
 
-    vozBlob          = base64ToBlob(data.vocals,        'audio/wav');
-    instrumentalBlob = base64ToBlob(data.instrumental,  'audio/wav');
+    // ✅ Backend devuelve base64 directo en data.vocals y data.instrumental
+    vozBlob          = base64ToBlob(data.vocals,       'audio/wav');
+    instrumentalBlob = base64ToBlob(data.instrumental, 'audio/wav');
 
     const vozURL   = URL.createObjectURL(vozBlob);
     const instrURL = URL.createObjectURL(instrumentalBlob);
@@ -102,15 +104,13 @@ separateBtn.addEventListener('click', async () => {
 
     document.getElementById('topFilename').textContent = selectedFile.name;
 
-    // Switch to studio
-    uploadScreen.style.display  = 'none';
-    studioScreen.style.display  = 'flex';
+    uploadScreen.style.display = 'none';
+    studioScreen.style.display = 'flex';
 
-    // Draw waveforms after layout is visible
     requestAnimationFrame(async () => {
       await Promise.all([
-        drawWaveform(vozURL,   'waveformVoz',           '#00e5cc'),
-        drawWaveform(instrURL, 'waveformInstrumental',  '#00bfad'),
+        drawWaveform(vozURL,   'waveformVoz',          '#00e5cc'),
+        drawWaveform(instrURL, 'waveformInstrumental', '#00bfad'),
       ]);
       buildTimeline();
       startLoop();
@@ -120,6 +120,7 @@ separateBtn.addEventListener('click', async () => {
 
   } catch (err) {
     uploadStatusText.textContent = '✗ ' + err.message;
+    console.error(err);
     separateBtn.disabled = false;
   }
 });
@@ -271,7 +272,6 @@ async function drawWaveform(url, canvasId, color) {
 
   ctx.clearRect(0, 0, W, H);
 
-  // Filled waveform like Moises
   const grad = ctx.createLinearGradient(0, 0, 0, H);
   grad.addColorStop(0,    color + 'ff');
   grad.addColorStop(0.45, color + 'dd');
@@ -292,47 +292,46 @@ async function drawWaveform(url, canvasId, color) {
 }
 
 // ── DOWNLOAD ──
-function downloadTrack(track, format) {
-  const blob = track === 'voz' ? vozBlob : instrumentalBlob;
+function downloadTrack(track) {
+  const blob     = track === 'voz' ? vozBlob : instrumentalBlob;
+  const filename = track === 'voz' ? 'vocals.wav' : 'instrumental.wav';
   if (!blob) return;
-  const mime = { mp3:'audio/mpeg', wav:'audio/wav', flac:'audio/flac' };
-  triggerDL(new Blob([blob], { type: mime[format] }), `${track}.${format}`);
-}
-
-function downloadAll() {
-  if (vozBlob)          triggerDL(vozBlob,          'vocals.wav');
-  if (instrumentalBlob) triggerDL(instrumentalBlob, 'instrumental.wav');
-}
-
-function triggerDL(blob, name) {
-  const url = URL.createObjectURL(blob);
-  const a   = Object.assign(document.createElement('a'), { href: url, download: name });
+  const a = document.createElement('a');
+  a.href  = URL.createObjectURL(blob);
+  a.download = filename;
   a.click();
-  URL.revokeObjectURL(url);
 }
 
-// ── HELPERS ──
-function setProgress(fill, label, pct) {
-  fill.style.width  = pct + '%';
-  label.textContent = pct + '%';
-}
-
-function simulateProgress(fill, label, statusEl, text, from, to, duration) {
-  statusEl.textContent = text;
-  return new Promise(resolve => {
-    const steps = 40, inc = (to - from) / steps;
-    let cur = from;
-    const t = setInterval(() => {
-      cur += inc;
-      if (cur >= to) { cur = to; clearInterval(t); resolve(); }
-      setProgress(fill, label, Math.round(cur));
-    }, duration / steps);
-  });
-}
-
+// ── BASE64 → BLOB ──
 function base64ToBlob(b64, mime) {
-  const bytes = atob(b64);
-  const arr   = new Uint8Array(bytes.length);
-  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+  const bin  = atob(b64);
+  const arr  = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
   return new Blob([arr], { type: mime });
+}
+
+// ── PROGRESS HELPERS ──
+function setProgress(fill, percentEl, value) {
+  fill.style.width        = value + '%';
+  percentEl.textContent   = value + '%';
+}
+
+async function simulateProgress(fill, percentEl, statusEl, msg, from, to, duration) {
+  statusEl.textContent = msg;
+  const steps    = 40;
+  const interval = duration / steps;
+  const increment = (to - from) / steps;
+  let current = from;
+  return new Promise(resolve => {
+    const id = setInterval(() => {
+      current += increment;
+      if (current >= to) {
+        setProgress(fill, percentEl, to);
+        clearInterval(id);
+        resolve();
+      } else {
+        setProgress(fill, percentEl, Math.round(current));
+      }
+    }, interval);
+  });
 }
