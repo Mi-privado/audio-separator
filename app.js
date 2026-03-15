@@ -50,6 +50,49 @@ function handleFile(file) {
   separateBtn.disabled = false;
 }
 
+// ── SEND WITH RETRY ──
+async function sendWithRetry(formData, onProgress, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    uploadStatusText.textContent = attempt > 1 ? `Reintentando (${attempt}/${maxRetries})…` : 'Uploading…';
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', HF_API_URL);
+
+    xhr.upload.addEventListener('progress', e => {
+      if (e.lengthComputable) {
+        const pct = Math.round((e.loaded / e.total) * 100);
+        setProgress(uploadProgressFill, uploadPercent, pct);
+        uploadStatusText.textContent = pct < 100
+          ? (attempt > 1 ? `Reintentando (${attempt}/${maxRetries})…` : 'Uploading…')
+          : '✓ Uploaded';
+      }
+    });
+
+    const response = await new Promise((resolve, reject) => {
+      xhr.onload  = () => resolve(xhr);
+      xhr.onerror = () => reject(new Error('Network error'));
+      xhr.send(formData);
+    });
+
+    if (response.status === 200) return response;
+
+    if (response.status === 500 && attempt < maxRetries) {
+      uploadStatusText.textContent = `⚠ Server error, esperando antes de reintentar…`;
+      setProgress(uploadProgressFill, uploadPercent, 0);
+      await new Promise(r => setTimeout(r, 4000 * attempt)); // espera 4s, 8s
+      // reconstruir FormData para el reintento
+      const newForm = new FormData();
+      const fileBlob = new File([selectedFile], selectedFile.name, { type: selectedFile.type || 'audio/mpeg' });
+      newForm.append('file', fileBlob);
+      formData = newForm;
+      continue;
+    }
+
+    throw new Error('Server error ' + response.status);
+  }
+  throw new Error('Server error 500 después de ' + maxRetries + ' intentos');
+}
+
 // ── SEPARATE ──
 separateBtn.addEventListener('click', async () => {
   if (!selectedFile) return;
@@ -63,22 +106,7 @@ separateBtn.addEventListener('click', async () => {
   formData.append('file', fileBlob);
 
   try {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', HF_API_URL);
-
-    xhr.upload.addEventListener('progress', e => {
-      if (e.lengthComputable) {
-        const pct = Math.round((e.loaded / e.total) * 100);
-        setProgress(uploadProgressFill, uploadPercent, pct);
-        uploadStatusText.textContent = pct < 100 ? 'Uploading…' : '✓ Uploaded';
-      }
-    });
-
-    const response = await new Promise((resolve, reject) => {
-      xhr.onload  = () => resolve(xhr);
-      xhr.onerror = () => reject(new Error('Network error'));
-      xhr.send(formData);
-    });
+    const response = await sendWithRetry(formData);
 
     setProgress(uploadProgressFill, uploadPercent, 100);
     uploadStatusText.textContent = '✓ Uploaded';
@@ -86,13 +114,10 @@ separateBtn.addEventListener('click', async () => {
     processProgressSection.style.display = 'flex';
     await simulateProgress(processProgressFill, processPercent, processStatusText, 'Separating stems…', 0, 95, 3500);
 
-    if (response.status !== 200) throw new Error('Server error ' + response.status);
-
     const data = JSON.parse(response.responseText);
     setProgress(processProgressFill, processPercent, 100);
     processStatusText.textContent = '✓ Done!';
 
-    // ✅ Backend devuelve base64 directo en data.vocals y data.instrumental
     vozBlob          = base64ToBlob(data.vocals,       'audio/wav');
     instrumentalBlob = base64ToBlob(data.instrumental, 'audio/wav');
 
@@ -311,8 +336,8 @@ function base64ToBlob(b64, mime) {
 
 // ── PROGRESS HELPERS ──
 function setProgress(fill, percentEl, value) {
-  fill.style.width          = value + '%';
-  percentEl.textContent     = value + '%';
+  fill.style.width      = value + '%';
+  percentEl.textContent = value + '%';
 }
 
 function simulateProgress(fill, percentEl, statusEl, msg, from, to, duration) {
