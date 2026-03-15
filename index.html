@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Audio Separator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🎵 Audio Separator</h1>
+    <p class="subtitle">Separa la voz del instrumental de cualquier canción</p>
+
+    <div class="upload-area" id="uploadArea">
+      <input type="file" id="audioFile" accept="audio/*" hidden />
+      <label for="audioFile" class="upload-label">
+        <span id="uploadText">📂 Arrastra o haz clic para subir tu canción</span>
+      </label>
+    </div>
+
+    <button id="separateBtn" class="btn" disabled>Separar Audio</button>
+
+    <div id="status" class="status hidden"></div>
+    <div id="progressBar" class="progress hidden">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div id="results" class="results hidden">
+      <h2>🎤 Resultados</h2>
+      <div class="stem-card">
+        <h3>🎤 Solo Voz</h3>
+        <audio id="vocalsAudio" controls></audio>
+        <a id="vocalsDownload" class="btn-download" download="vocals.wav">⬇ Descargar</a>
+      </div>
+      <div class="stem-card">
+        <h3>🎸 Instrumental</h3>
+        <audio id="instrumentalAudio" controls></audio>
+        <a id="instrumentalDownload" class="btn-download" download="instrumental.wav">⬇ Descargar</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

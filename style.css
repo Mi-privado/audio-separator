@@ -1,0 +1,149 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #0f0f1a;
+  color: #e0e0e0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 640px;
+  padding: 2rem;
+  text-align: center;
+}
+
+h1 {
+  font-size: 2.2rem;
+  background: linear-gradient(135deg, #a78bfa, #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #888;
+  margin-bottom: 2rem;
+}
+
+.upload-area {
+  border: 2px dashed #a78bfa55;
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  margin-bottom: 1.5rem;
+  transition: border-color 0.3s, background 0.3s;
+  cursor: pointer;
+}
+
+.upload-area:hover {
+  border-color: #a78bfa;
+  background: #a78bfa11;
+}
+
+.upload-label {
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #a78bfa;
+}
+
+.btn {
+  background: linear-gradient(135deg, #a78bfa, #60a5fa);
+  color: white;
+  border: none;
+  padding: 0.85rem 2.5rem;
+  border-radius: 50px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.3s, transform 0.2s;
+  margin-bottom: 1.5rem;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn:not(:disabled):hover {
+  opacity: 0.9;
+  transform: scale(1.03);
+}
+
+.status {
+  padding: 1rem;
+  border-radius: 10px;
+  background: #1e1e2e;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: #a78bfa;
+}
+
+.progress {
+  height: 8px;
+  background: #1e1e2e;
+  border-radius: 50px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(135deg, #a78bfa, #60a5fa);
+  border-radius: 50px;
+  transition: width 0.4s ease;
+}
+
+.results {
+  margin-top: 1.5rem;
+}
+
+.results h2 {
+  margin-bottom: 1.2rem;
+  font-size: 1.4rem;
+}
+
+.stem-card {
+  background: #1e1e2e;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.stem-card h3 {
+  margin-bottom: 0.8rem;
+  color: #a78bfa;
+}
+
+.stem-card audio {
+  width: 100%;
+  margin-bottom: 0.8rem;
+}
+
+.btn-download {
+  display: inline-block;
+  background: #a78bfa22;
+  color: #a78bfa;
+  border: 1px solid #a78bfa55;
+  padding: 0.5rem 1.2rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+
+.btn-download:hover {
+  background: #a78bfa44;
+}
+
+.hidden {
+  display: none;
+}
