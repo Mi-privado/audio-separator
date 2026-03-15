@@ -1,177 +1,191 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>StemSplit — AI Audio Separator</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>StemSplit AI</title>
+  <link rel="stylesheet" href="style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
 <body>
 
-  <!-- ── NAVBAR ── -->
-  <nav class="navbar">
-    <div class="nav-logo">
-      <span class="logo-icon">◈</span>
-      <span class="logo-text">StemSplit</span>
-      <span class="logo-badge">AI</span>
-    </div>
-    <div class="nav-links">
-      <span class="nav-tag">Free · No registration</span>
-    </div>
-  </nav>
+<!-- ════════════════════════════════
+     UPLOAD SCREEN
+════════════════════════════════ -->
+<div class="upload-screen" id="uploadScreen">
+  <div class="upload-box">
+    <div class="upload-logo">◈ StemSplit <span class="badge">AI</span></div>
+    <p class="upload-tagline">Separate any song into stems instantly</p>
 
-  <!-- ── HERO ── -->
-  <section class="hero" id="heroSection">
-    <div class="hero-content">
-      <h1 class="hero-title">Separate any song<br/><span class="gradient-text">in seconds</span></h1>
-      <p class="hero-sub">AI-powered stem separation — vocals, drums, bass & more.</p>
-
-      <!-- UPLOAD CARD -->
-      <div class="upload-card" id="uploadArea">
-        <input type="file" id="audioFile" accept="audio/*" hidden />
-        <label for="audioFile" class="upload-inner">
-          <div class="upload-icon-wrap">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
-            </svg>
-          </div>
-          <p class="upload-main" id="uploadText">Drop your audio file here</p>
-          <p class="upload-sub">MP3, WAV, FLAC · Max 50 MB</p>
-          <div class="upload-btn-fake">Browse file</div>
-        </label>
-      </div>
-
-      <!-- UPLOAD PROGRESS -->
-      <div class="progress-wrap" id="uploadProgressSection" style="display:none">
-        <div class="progress-meta">
-          <span id="uploadStatusText">Uploading...</span>
-          <span id="uploadPercent">0%</span>
+    <div class="drop-zone" id="uploadArea">
+      <input type="file" id="audioFile" accept="audio/*" hidden/>
+      <label for="audioFile" class="drop-inner">
+        <div class="drop-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 19V6l12-3v13M9 19c0 1.1-1.34 2-3 2s-3-.9-3-2 1.34-2 3-2 3 .9 3 2zm12-3c0 1.1-1.34 2-3 2s-3-.9-3-2 1.34-2 3-2 3 .9 3 2z"/>
+          </svg>
         </div>
-        <div class="progress-track"><div class="progress-bar bar-upload" id="uploadProgressFill"></div></div>
-      </div>
+        <p class="drop-main" id="uploadText">Drop your audio file here</p>
+        <p class="drop-sub">MP3 · WAV · FLAC · Max 50 MB</p>
+        <span class="drop-btn">Browse file</span>
+      </label>
+    </div>
 
-      <!-- PROCESS PROGRESS -->
-      <div class="progress-wrap" id="processProgressSection" style="display:none">
-        <div class="progress-meta">
-          <span id="processStatusText">Separating stems...</span>
-          <span id="processPercent">0%</span>
-        </div>
-        <div class="progress-track"><div class="progress-bar bar-process" id="processProgressFill"></div></div>
-      </div>
+    <!-- Upload progress -->
+    <div class="prog-wrap" id="uploadProgressSection" style="display:none">
+      <div class="prog-meta"><span id="uploadStatusText">Uploading…</span><span id="uploadPercent">0%</span></div>
+      <div class="prog-track"><div class="prog-fill fill-up" id="uploadProgressFill"></div></div>
+    </div>
 
-      <button id="separateBtn" disabled>
-        <span class="btn-icon">✦</span> Separate Stems
+    <!-- Process progress -->
+    <div class="prog-wrap" id="processProgressSection" style="display:none">
+      <div class="prog-meta"><span id="processStatusText">Separating stems…</span><span id="processPercent">0%</span></div>
+      <div class="prog-track"><div class="prog-fill fill-proc" id="processProgressFill"></div></div>
+    </div>
+
+    <button id="separateBtn" disabled>✦ Separate Stems</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     STUDIO SCREEN
+════════════════════════════════ -->
+<div class="studio-screen" id="studioScreen" style="display:none">
+
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <div class="top-left">
+      <button class="icon-btn" onclick="backToUpload()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="track-icon-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 19V6l12-3v13M9 19c0 1.1-1.34 2-3 2s-3-.9-3-2 1.34-2 3-2 3 .9 3 2zm12-3c0 1.1-1.34 2-3 2s-3-.9-3-2 1.34-2 3-2 3 .9 3 2z"/></svg>
+      </div>
+      <span class="top-filename" id="topFilename">track.mp3</span>
+    </div>
+    <div class="top-center">
+      <button class="top-action-btn" id="separateMoreBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Separar pistas
       </button>
     </div>
-  </section>
-
-  <!-- ── EDITOR ── -->
-  <section class="studio" id="editor" style="display:none">
-
-    <div class="studio-header">
-      <div class="studio-file-info">
-        <span class="studio-icon">◈</span>
-        <div>
-          <p class="studio-filename" id="studioFilename">track.mp3</p>
-          <p class="studio-label">Stems ready</p>
-        </div>
-      </div>
-      <div class="studio-master-controls">
-        <button class="master-btn" id="masterPlayBtn" onclick="masterPlay()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-          Play All
-        </button>
-        <button class="master-btn secondary" onclick="masterStop()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>
-          Stop
-        </button>
-      </div>
+    <div class="top-right">
+      <button class="top-action-btn" id="exportBtn" onclick="downloadAll()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Exportar
+      </button>
+      <button class="icon-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      </button>
     </div>
+  </header>
 
-    <!-- TIMELINE RULER -->
-    <div class="timeline-ruler" id="timelineRuler"></div>
+  <!-- MAIN AREA -->
+  <div class="main-area">
 
-    <!-- TRACKS -->
-    <div class="tracks-container" id="tracksContainer">
-
-      <!-- VOZ -->
-      <div class="track-row" id="trackVoz">
-        <div class="track-sidebar">
-          <div class="track-label-row">
-            <span class="track-dot" style="background:#a78bfa"></span>
-            <span class="track-name">Vocals</span>
-          </div>
-          <div class="track-sidebar-controls">
-            <button class="btn-mute" id="muteVoz" onclick="toggleMute('voz')">M</button>
-            <button class="btn-solo" id="soloVoz" onclick="toggleSolo('voz')">S</button>
-          </div>
-          <div class="volume-row">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-            <input type="range" class="vol-slider" id="volVoz" min="0" max="1" step="0.01" value="1" oninput="setVolume('voz', this.value)"/>
-          </div>
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-track" id="sideVoz">
+        <div class="st-top">
+          <button class="ms-btn mute-btn" id="muteVoz" onclick="toggleMute('voz')" title="Mute">M</button>
+          <button class="ms-btn solo-btn" id="soloVoz" onclick="toggleSolo('voz')" title="Solo">S</button>
+          <span class="st-name">Voz</span>
         </div>
-        <div class="track-lane">
-          <canvas class="waveform-canvas" id="waveformVoz"></canvas>
-          <div class="playhead-line" id="playheadVoz"></div>
+        <div class="st-vol">
+          <input type="range" class="vol-knob" id="volVoz" min="0" max="1" step="0.01" value="1" oninput="setVolume('voz',this.value)"/>
+          <button class="knob-btn" id="volBtnVoz">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          </button>
         </div>
       </div>
 
-      <!-- INSTRUMENTAL -->
-      <div class="track-row" id="trackInstrumental">
-        <div class="track-sidebar">
-          <div class="track-label-row">
-            <span class="track-dot" style="background:#34d399"></span>
-            <span class="track-name">Instrumental</span>
-          </div>
-          <div class="track-sidebar-controls">
-            <button class="btn-mute" id="muteInstrumental" onclick="toggleMute('instrumental')">M</button>
-            <button class="btn-solo" id="soloInstrumental" onclick="toggleSolo('instrumental')">S</button>
-          </div>
-          <div class="volume-row">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-            <input type="range" class="vol-slider" id="volInstrumental" min="0" max="1" step="0.01" value="1" oninput="setVolume('instrumental', this.value)"/>
-          </div>
+      <div class="sidebar-track" id="sideInstrumental">
+        <div class="st-top">
+          <button class="ms-btn mute-btn" id="muteInstrumental" onclick="toggleMute('instrumental')" title="Mute">M</button>
+          <button class="ms-btn solo-btn" id="soloInstrumental" onclick="toggleSolo('instrumental')" title="Solo">S</button>
+          <span class="st-name">Otro</span>
         </div>
-        <div class="track-lane">
-          <canvas class="waveform-canvas" id="waveformInstrumental"></canvas>
-          <div class="playhead-line" id="playheadInstrumental"></div>
+        <div class="st-vol">
+          <input type="range" class="vol-knob" id="volInstrumental" min="0" max="1" step="0.01" value="1" oninput="setVolume('instrumental',this.value)"/>
+          <button class="knob-btn" id="volBtnInstrumental">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          </button>
         </div>
+      </div>
+
+      <!-- DOWNLOAD BUTTONS -->
+      <div class="sidebar-downloads">
+        <p class="dl-section-label">Download</p>
+        <div class="dl-row">
+          <span class="dl-name voz-color">Vocals</span>
+          <button class="dl-fmt" onclick="downloadTrack('voz','mp3')">MP3</button>
+          <button class="dl-fmt" onclick="downloadTrack('voz','wav')">WAV</button>
+          <button class="dl-fmt" onclick="downloadTrack('voz','flac')">FLAC</button>
+        </div>
+        <div class="dl-row">
+          <span class="dl-name instr-color">Instrumental</span>
+          <button class="dl-fmt" onclick="downloadTrack('instrumental','mp3')">MP3</button>
+          <button class="dl-fmt" onclick="downloadTrack('instrumental','wav')">WAV</button>
+          <button class="dl-fmt" onclick="downloadTrack('instrumental','flac')">FLAC</button>
+        </div>
+        <button class="dl-all-btn" onclick="downloadAll()">⬇ Download All</button>
+      </div>
+    </aside>
+
+    <!-- TRACKS AREA -->
+    <div class="tracks-area" id="tracksArea">
+
+      <!-- TIMELINE -->
+      <div class="timeline" id="timeline"></div>
+
+      <!-- SEEK BAR (clickable) -->
+      <div class="seek-overlay" id="seekOverlay" onclick="seekTo(event)"></div>
+
+      <!-- PLAYHEAD -->
+      <div class="playhead" id="playhead"></div>
+
+      <!-- WAVEFORM ROWS -->
+      <div class="wave-row" id="waveRowVoz">
+        <canvas id="waveformVoz" class="wave-canvas"></canvas>
+      </div>
+      <div class="wave-row" id="waveRowInstrumental">
+        <canvas id="waveformInstrumental" class="wave-canvas"></canvas>
       </div>
 
     </div>
+  </div>
 
-    <!-- BOTTOM BAR -->
-    <div class="bottom-bar">
-      <div class="time-display" id="timeDisplay">0:00 / 0:00</div>
-      <div class="download-section">
-        <span class="dl-label">Download stem:</span>
-
-        <div class="dl-group">
-          <span class="dl-track-name" style="color:#a78bfa">Vocals</span>
-          <button class="dl-btn" onclick="downloadTrack('voz','mp3')">MP3</button>
-          <button class="dl-btn" onclick="downloadTrack('voz','wav')">WAV</button>
-          <button class="dl-btn" onclick="downloadTrack('voz','flac')">FLAC</button>
-        </div>
-
-        <div class="dl-divider"></div>
-
-        <div class="dl-group">
-          <span class="dl-track-name" style="color:#34d399">Instrumental</span>
-          <button class="dl-btn" onclick="downloadTrack('instrumental','mp3')">MP3</button>
-          <button class="dl-btn" onclick="downloadTrack('instrumental','wav')">WAV</button>
-          <button class="dl-btn" onclick="downloadTrack('instrumental','flac')">FLAC</button>
-        </div>
-
-        <button class="dl-btn-all" onclick="downloadAll()">⬇ Download All</button>
-      </div>
+  <!-- TRANSPORT BAR -->
+  <footer class="transport">
+    <div class="transport-left">
+      <button class="tr-btn" onclick="changeVolume()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+      </button>
     </div>
+    <div class="transport-center">
+      <button class="tr-btn" onclick="skipBackward()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+      </button>
+      <button class="tr-btn play-btn" id="playBtn" onclick="togglePlay()">
+        <svg id="playIcon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="tr-btn" onclick="skipForward()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2-12v12l8.5-6z"/></svg>
+      </button>
+      <button class="tr-btn" id="loopBtn" onclick="toggleLoop()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4M3 11V9a4 4 0 014-4h14M7 22l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg>
+      </button>
+    </div>
+    <div class="transport-right">
+      <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+    </div>
+  </footer>
 
-  </section>
+</div>
 
-  <audio id="audioVoz" style="display:none"></audio>
-  <audio id="audioInstrumental" style="display:none"></audio>
+<audio id="audioVoz" style="display:none"></audio>
+<audio id="audioInstrumental" style="display:none"></audio>
 
-  <script src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
