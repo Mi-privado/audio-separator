@@ -58,9 +58,9 @@ separateBtn.addEventListener('click', async () => {
   uploadProgressSection.style.display  = 'flex';
   processProgressSection.style.display = 'none';
 
-  // ✅ FIX: el campo debe llamarse 'file', no 'audio'
   const formData = new FormData();
-  formData.append('file', selectedFile, selectedFile.name);
+  const fileBlob = new File([selectedFile], selectedFile.name, { type: selectedFile.type || 'audio/mpeg' });
+  formData.append('file', fileBlob);
 
   try {
     const xhr = new XMLHttpRequest();
@@ -293,12 +293,11 @@ async function drawWaveform(url, canvasId, color) {
 
 // ── DOWNLOAD ──
 function downloadTrack(track) {
-  const blob     = track === 'voz' ? vozBlob : instrumentalBlob;
-  const filename = track === 'voz' ? 'vocals.wav' : 'instrumental.wav';
-  if (!blob) return;
-  const a = document.createElement('a');
-  a.href  = URL.createObjectURL(blob);
-  a.download = filename;
+  const blob = track === 'voz' ? vozBlob : instrumentalBlob;
+  const name = track === 'voz' ? 'vocals.wav' : 'instrumental.wav';
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = name;
   a.click();
 }
 
@@ -312,26 +311,25 @@ function base64ToBlob(b64, mime) {
 
 // ── PROGRESS HELPERS ──
 function setProgress(fill, percentEl, value) {
-  fill.style.width        = value + '%';
-  percentEl.textContent   = value + '%';
+  fill.style.width          = value + '%';
+  percentEl.textContent     = value + '%';
 }
 
-async function simulateProgress(fill, percentEl, statusEl, msg, from, to, duration) {
-  statusEl.textContent = msg;
-  const steps    = 40;
-  const interval = duration / steps;
-  const increment = (to - from) / steps;
-  let current = from;
+function simulateProgress(fill, percentEl, statusEl, msg, from, to, duration) {
   return new Promise(resolve => {
-    const id = setInterval(() => {
-      current += increment;
+    statusEl.textContent = msg;
+    const steps    = 60;
+    const interval = duration / steps;
+    const inc      = (to - from) / steps;
+    let current    = from;
+    const timer    = setInterval(() => {
+      current += inc;
       if (current >= to) {
-        setProgress(fill, percentEl, to);
-        clearInterval(id);
+        current = to;
+        clearInterval(timer);
         resolve();
-      } else {
-        setProgress(fill, percentEl, Math.round(current));
       }
+      setProgress(fill, percentEl, Math.round(current));
     }, interval);
   });
 }
